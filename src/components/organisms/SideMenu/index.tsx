@@ -21,7 +21,7 @@ export const SideMenu = ({ children }: ISideMenu) => {
     return (
         <>
             <Drawer variant={mdDown ? 'temporary' : 'permanent'} isOpen={isMenuOpen} onClose={toggleMenuOpen}>
-
+                <Box height={spacing(6.5)} />
                 <ListNav>
                     {
                         menuOptions.map(option => (
@@ -33,7 +33,7 @@ export const SideMenu = ({ children }: ISideMenu) => {
                 </ListNav>
 
             </Drawer>
-
+            <Box height={spacing(6.5)} />
             <Box marginLeft={mdDown ? 0 : spacing(23)} >
                 {children}
             </Box>

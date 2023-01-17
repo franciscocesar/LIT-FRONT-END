@@ -24,8 +24,10 @@ export const Modal = ({ open, handleClose, children }: IModal) => {
         <ModalContainer
             open={open}
             onClose={handleClose}
+            onKeyUpCapture={handleClose}
             aria-labelledby="modal-modal-title"
             aria-describedby="modal-modal-description"
+
         >
             <Box sx={style}>
                 {children}
