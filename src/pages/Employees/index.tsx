@@ -1,17 +1,22 @@
-import { Box, Typography, useTheme } from "@mui/material"
+import { Box, TextField, Typography, useTheme, Icon as IconMui } from "@mui/material"
+import { useState } from "react"
+
 import { useQuery } from "react-query"
-import { useNavigate } from "react-router-dom"
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom"
 import { Button } from "../../components/atoms/Button"
 import { Icon } from "../../components/atoms/Icon"
 import { Loading } from "../../components/atoms/Loading"
-import { StyledTableCell } from "../../components/atoms/StyledTableCell"
-import { StyledTableRow } from "../../components/atoms/StyledTableRow"
 import { ListEmployeers } from "../../components/organisms/ListEmployees"
-import { requestAllEmployees } from "../../shared/clients/EmployeeClient"
+import { requestAllEmployees, searchEmployeeByName } from "../../shared/clients/EmployeeClient"
 
 export const Employeers = () => {
     const theme = useTheme()
     const navigate = useNavigate()
+    const { search } = useLocation()
+
+    const [searchByName, setSearchByName] = useState('')
+
+
     const { isLoading, error, data } = useQuery(['employees'], () =>
         requestAllEmployees().then(res =>
             res.data.data
@@ -20,6 +25,22 @@ export const Employeers = () => {
             cacheTime: 5000,
         }
     )
+
+    const { data: searchDate } = useQuery(['search-employees'], () =>
+        searchEmployeeByName(search).then(res =>
+            res.data.data
+        ),
+        {
+            cacheTime: 5000,
+        }
+    )
+
+    const handleSearch = () => {
+        navigate(`/employyers?name=${searchByName}`)
+        window.location.reload();
+
+
+    }
 
 
     return (
@@ -30,7 +51,6 @@ export const Employeers = () => {
                     top: '50%',
                     left: '50%',
                     transform: 'translate(-50%, -50%)'
-
                 }}>
                     <Loading color={'primary'} />
                 </Box> :
@@ -43,10 +63,13 @@ export const Employeers = () => {
                         </Typography>
 
                     </Box>
-                    <Box marginTop={'20px'}>
-                        <ListEmployeers body={data} />
+                    <Box sx={{ display: 'flex', alignItems: 'flex-end' }}>
+                        <TextField id="standard-basic" label="Buscar" variant="standard" onChange={(event) => setSearchByName(event.target.value)} />
+                        <IconMui sx={{ fontSize: '30px', cursor: 'pointer' }} onClick={handleSearch}>search</IconMui>
                     </Box>
-
+                    <Box marginTop={'20px'}>
+                        <ListEmployeers body={!search ? data : searchDate} />
+                    </Box>
 
                     <Box marginTop={'15px'}>
                         <Button variant={"contained"} description={"Novo Funcionário"} isLoading={false} onClick={() => navigate('/create-employerr')} />

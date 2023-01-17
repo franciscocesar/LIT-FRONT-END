@@ -1,5 +1,6 @@
 import { useEffect } from "react"
 import { Route, Routes } from "react-router-dom"
+import { Header } from "../components/molecules/Header"
 import { SideMenu } from "../components/organisms/SideMenu"
 import { CreateEmployeer } from "../pages/CreateEmployeesForm"
 import { Employeers } from "../pages/Employees"
@@ -15,17 +16,21 @@ export const AppRoutes = () => {
         ])
     }, [])
     return (
-        <SideMenu>
-            <Routes>
-                <Route
-                    path="/employyers"
-                    element={<Employeers />}
-                />
-                <Route
-                    path="/create-employerr"
-                    element={<CreateEmployeer />}
-                />
-            </Routes>
-        </SideMenu>
+        <>
+            <Header />
+            <SideMenu>
+                <Routes>
+                    <Route
+                        path="/employyers"
+                        element={<Employeers />}
+                    />
+                    <Route
+                        path="/create-employerr"
+                        element={<CreateEmployeer />}
+                    />
+                </Routes>
+            </SideMenu>
+        </>
+
     )
 }

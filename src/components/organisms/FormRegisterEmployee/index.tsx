@@ -8,7 +8,6 @@ import { CPFInput } from "../../molecules/CPFInput"
 import { NameInput } from "../../molecules/NameInput"
 import { HiringInput } from "../../molecules/HiringInput"
 import { useState } from "react"
-import { Icon } from "../../atoms/Icon"
 import { Button } from "../../atoms/Button"
 import { RoleInput } from "../../molecules/RolesListInput"
 import { useQuery } from "react-query"
@@ -23,7 +22,7 @@ import { useNavigate } from "react-router-dom"
 import { IsActiveCheckBox } from "../../molecules/IsActiveCheckbox"
 import { responseEmployee } from "../../../shared/clients/EmployeeClient"
 
-interface IResultRequest {
+export interface IResultRequest {
     message: string,
     type: 'error' | 'success' | 'info' | 'warning' | undefined
 }
@@ -34,6 +33,7 @@ export const FormRegisterEmployee = () => {
     const [isOpenModal, setOpenModal] = useState<boolean>(false)
 
     const navigate = useNavigate()
+
 
     const [result, setResult] = useState<IResultRequest>()
 
@@ -77,14 +77,6 @@ export const FormRegisterEmployee = () => {
         }
     }
 
-    const { isLoading, error, data } = useQuery(['role'], () =>
-        requestAllRoles().then(res =>
-            res.data.data
-        ),
-        {
-            cacheTime: 5000,
-        }
-    )
 
     const createNewRole = async (name: string) => {
         try {
@@ -113,7 +105,7 @@ export const FormRegisterEmployee = () => {
                         <EmailInput />
                         <CPFInput />
                         <HiringInput />
-                        <RoleInput options={data} onClick={openModal} />
+                        <RoleInput onClick={openModal} />
                         <DateInput />
                         <IsActiveCheckBox />
                         <PasswordInput />

@@ -1,16 +1,16 @@
-import { yupResolver } from "@hookform/resolvers/yup"
-import * as yup from 'yup'
+
 import { Box, TableBody, TableHead, TableRow } from "@mui/material"
 import { ReactNode, useState } from "react"
-import { FormProvider, SubmitHandler, useForm } from "react-hook-form"
+import { useNavigate } from "react-router-dom"
 import { IEmployeeEntity } from "../../../entities/EmployeeEntity"
+import { enableOrDisableStatusEmployee } from "../../../shared/clients/EmployeeClient"
 import { Icon } from "../../atoms/Icon"
 import { Modal } from "../../atoms/Modal"
 import { StyledTableCell } from "../../atoms/StyledTableCell"
 import { StyledTableRow } from "../../atoms/StyledTableRow"
-import { ConfirmedPasswordInput } from "../../molecules/ConfirmedPasswordInput"
-import { PasswordInput } from "../../molecules/PasswordInput"
+import { ChangePasswordModal } from "../../molecules/ChangePasswordModal"
 import { Table } from "../../molecules/Table"
+import { FormEditEmployee } from "../FormEditEmployeer"
 
 
 interface IListEmployeers {
@@ -19,46 +19,39 @@ interface IListEmployeers {
 
 export const ListEmployeers = ({ body }: IListEmployeers) => {
 
-    const [isOpenModal, setOpenModal] = useState<boolean>(false)
+    const [isOpenChangePasswordModal, setChangePasswordModal] = useState<boolean>(false)
+    const [isOpenEditEmployeerModal, setOpenEditEmployeerModal] = useState<boolean>(false)
+    const [item, setItem] = useState<IEmployeeEntity>()
 
-    const formSubmitHandler: SubmitHandler<any> = async (data: any) => {
-        console.log(data)
+    const [document, setDocument] = useState<string>('')
+    const navigate = useNavigate()
+
+    const handleIsCloseChangePasswordModal = () => {
+        setChangePasswordModal(false)
+        navigate(0)
     }
 
-    const schema = yup.object().shape({
-        password: yup.string()
-            .required("O Campo de senha é obrigatório")
-            .matches(
-                /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[$*&@#])[0-9a-zA-Z$*&@#]{8,}$/,
-                "A senha cadastrada pelo usuário deve ser composta de pelo menos 8 caracteres, ter uma letra maiúsculas e uma letra minúsculas além de conter pelo menos 1 caractere especial"
-            ),
-        confirmedPassword: yup
-            .string()
-            .required("Confirme sua senha")
-            .oneOf([yup.ref('password'), null], "Senhas não confere"),
-    })
+    const handleIsCloseEditEmployeerModal = () => {
+        setOpenEditEmployeerModal(false)
+        navigate(0)
+    }
 
-    const methods = useForm({
-        resolver: yupResolver(schema),
-        delayError: 2000
-    })
+    const enableOrDisableStatus = async (document: string) => {
+        await enableOrDisableStatusEmployee(document)
+        navigate(0)
+    }
+
 
     const rows = ['Nome', 'CPF', 'E-mail', 'Status', 'Cargo', 'Ações']
 
     return (
         <Table>
-            <Modal open={isOpenModal} handleClose={() => setOpenModal(false)} >
-                <FormProvider {...methods} >
-                    <form onSubmit={methods.handleSubmit(formSubmitHandler)}>
-                        <PasswordInput />
-                        <ConfirmedPasswordInput />
-                    </form>
-                </FormProvider>
-            </Modal>
+            <ChangePasswordModal handleClose={handleIsCloseChangePasswordModal} isOpen={isOpenChangePasswordModal} document={document} />
+            <FormEditEmployee isOpen={isOpenEditEmployeerModal} onClose={handleIsCloseEditEmployeerModal} items={item} />
             <TableHead>
                 <TableRow>
                     {rows.map(row => (
-                        <StyledTableCell>{row}</StyledTableCell>
+                        <StyledTableCell key={row}>{row}</StyledTableCell>
                     ))}
                 </TableRow>
             </TableHead>
@@ -74,18 +67,27 @@ export const ListEmployeers = ({ body }: IListEmployeers) => {
 
                             {item.active ?
                                 <Box display={'flex'} justifyContent={'space-between'} alignItems={'center'}>
-                                    <Box>
+                                    <Box sx={{ cursor: 'pointer' }} onClick={() => {
+                                        setOpenEditEmployeerModal(true)
+                                        setItem(item)
+                                    }}>
+
                                         <Icon name="edit" />
                                     </Box>
-                                    <Box>
+                                    <Box sx={{ cursor: 'pointer' }} onClick={() => {
+                                        enableOrDisableStatus(item.document)
+                                    }}>
                                         <Icon name="settings_remote" />
                                     </Box>
-                                    <Box sx={{ cursor: 'pointer' }} onClick={() => setOpenModal(true)}>
+                                    <Box sx={{ cursor: 'pointer' }} onClick={() => {
+                                        setChangePasswordModal(true)
+                                        setDocument(item.document)
+                                    }}>
                                         <Icon name="rate_review" />
                                     </Box>
 
                                 </Box>
-                                : <Box display={'flex'} justifyContent={'center'}>
+                                : <Box sx={{ cursor: 'pointer' }} display={'flex'} justifyContent={'center'} onClick={() => enableOrDisableStatus(item.document)}>
                                     <Icon name="backup" />
                                 </Box>}
                         </StyledTableCell>
